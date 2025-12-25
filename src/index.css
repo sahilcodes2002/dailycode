@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* src/index.css or src/global.css */
+
+/* Example of additional custom Tailwind-based styling */
+.rbc-today {
+  @apply bg-green-200 rounded-lg !important; /* Soft highlight for today */
+}  
+
+.rbc-event {
+  @apply rounded-md py-0.5 px-2 flex text-white text-xs font-medium !important; /* Thinner event boxes */
+}
+
+.rbc-event:hover {
+  @apply scale-105 transition-all duration-200 ease-in-out !important; /* Hover effect */
+}
+
+.rbc-month-view {
+  @apply bg-white shadow-md rounded-lg p-2 !important; /* Better background */
+}
+
+.rbc-header {
+  @apply bg-gradient-to-r from-green-400 to-green-400 text-white p-2 text-center text-xs font-semibold shadow-md !important; /* Gradient header */
+}
+
+.rbc-header:first-child {
+  @apply bg-red-400 text-white !important; /* Sunday */
+}
+
+.rbc-header:nth-child(n+2) {
+  @apply bg-green-400 text-white !important; /* Other weekdays */
+}
+
+  
+
+  /* Hide the scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Add this to your global styles */
+.week-calendar::-webkit-scrollbar {
+  width: 4px; /* Width of the scrollbar */
+}
+
+.week-calendar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background of the scrollbar track */
+}
+
+.week-calendar::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Roundness of the scrollbar thumb */
+}
+
+.week-calendar::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color when hovering over the scrollbar thumb */
+}
+
+
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Width of the scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light background of the scrollbar track */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Roundness of the scrollbar thumb */
+  border: 2px solid #f1f1f1; /* Space around the scrollbar thumb */
+}
+
+
+
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  padding: 4px;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px; /* Adjust the width as needed */
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 8px;
+  position: absolute;
+  z-index: 1;
+  top: 50%; /* Position the tooltip vertically center with the element */
+  left: 105%; /* Position the tooltip to the right of the element */
+  margin-left: 0; /* Remove centering on left */
+  transform: translateY(-50%); /* Vertically center the tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}

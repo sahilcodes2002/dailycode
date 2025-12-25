@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Carter+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+  box-sizing: border-box;
+}
+
+.survey-container {
+  width: 100%;
+  margin: auto;
+  background-color: #d4e7d9;
+  padding: min(1.5rem, 8vw);
+
+}
+.signup-container {
+  width: 100%;
+  margin: auto;
+  background-color: #d4e7d9;
+}
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%;
+  background: #ecf7f1;
+    padding: 24px;
+    border-radius: 20px 0;
+
+}
+
+.form-wrapper{
+  width: 100%;
+  margin: 0 auto;
+  max-width: 80%;
+}
+.flex-class{
+  display: flex;
+  gap: 10px;
+}
+
+.form-group label {
+  display: block;
+  font-weight:500;
+  margin-bottom: 10px;
+  color: #288e6b;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 14px;
+  background: #ffffff;
+  border-radius: 4px;
+  border: 0;
+  box-shadow: 2px 2px 10px #c5c5c5;
+}
+.form-group input:focus-visible,
+.form-group select:focus-visible{
+  outline: none;
+}
+.form-group input::placeholder,
+.form-group select::placeholder{
+  color: #288e6b;
+}
+.form-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.form-button:hover {
+  background-color: #45a049;
+}
+
+.dashboard-container {
+  width: 50%;
+  margin: auto;
+  background-color: #f7f7f7;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header{
+  padding: 5px 1.5rem;
+  background-color: #ecf7f1;
+}
+.signup-dashboard{
+  background-color: #d4e7d9;
+}
+.logo-text{
+  font-size: 26px;
+    color: #288e6b;
+    font-weight: 700;
+}
+.form-row{
+  display: flex;
+  gap: 15px;
+}
+.checkboxicon{
+  max-width: 20px;
+
+}
+
+.logo-image{
+  background: url(../styles/images/logo.png);
+  width: 52px;
+  height:73px;
+  background-size: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.logo-wrapper{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.big-text{
+color: #288e6b;
+  margin: 0 0 20px 0;
+  font-family: "Carter One", system-ui;
+  font-size: 3rem;
+}
+.big-med-text{
+  color: #288e6b;
+    margin: 0 0 20px 0;
+    font-family: "Carter One", system-ui;
+    font-size: 3rem;
+  }
+
+.container-radio {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.container-radio input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: transparent;
+  border-radius: 50%;
+  border: 1px solid;
+}
+
+/* On mouse-over, add a grey background color */
+.container-radio:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.container-radio input:checked ~ .checkmark {
+  background-color: #288e6b;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.container-radio input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.container-radio .checkmark:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #288e6b;
+}
+.rating-wrap{
+  margin-top: 10px;
+}
+
+.radio-wrapper{
+  display: flex;
+}
