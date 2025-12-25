@@ -60,7 +60,7 @@ export function Discover() {
     }
   };
 
-  const fetchProblems = async (page, isSearch = false) => {
+  const fetchProblems = async (page, isSearch = false, shouldAppend = false) => {
     try {
       if (isSearch) {
         setSearchLoading(true);
@@ -103,11 +103,25 @@ export function Discover() {
           })
         );
         
-        if (page === 1) {
-          setProblems(problemsWithStatus);
-        } else {
+        if (shouldAppend) {
+          // For "Load More" - append to existing problems
+          const currentCount = problems.length;
           setProblems(prev => [...prev, ...problemsWithStatus]);
+          
+          // Scroll to the first new problem after a short delay
+          setTimeout(() => {
+            const problemCards = document.querySelectorAll('[data-problem-card]');
+            if (problemCards[currentCount]) {
+              problemCards[currentCount].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        } else {
+          // For page navigation or initial load - replace problems
+          setProblems(problemsWithStatus);
+          // Scroll to top of problem list
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+        
         setPagination(response.data.pagination);
       } else {
         toast.error('Failed to fetch problems');
@@ -183,7 +197,7 @@ export function Discover() {
 
   const handleLoadMore = () => {
     if (pagination.hasNextPage) {
-      fetchProblems(pagination.page + 1);
+      fetchProblems(pagination.page + 1, false, true); // shouldAppend = true
     }
   };
 
@@ -415,20 +429,21 @@ export function Discover() {
               </div>
             ) : (
               <div className="grid gap-6">
-                {problems.map((problem) => (
-                  <ProblemCard
-                    key={problem.id}
-                    problem={{
-                      ...problem,
-                      problem_link: problem.link,
-                      difficulty: problem.difficulty
-                    }}
-                    onClick={() => handleProblemClick(problem.id)}
-                    showStar={false}
-                    isStarred={problem.isStarred}
-                    onStarToggle={() => handleStarToggle(problem.id, problem.isStarred)}
-                    isLoading={starLoading[problem.id]}
-                  />
+                {problems.map((problem, index) => (
+                  <div key={problem.id} data-problem-card>
+                    <ProblemCard
+                      problem={{
+                        ...problem,
+                        problem_link: problem.link,
+                        difficulty: problem.difficulty
+                      }}
+                      onClick={() => handleProblemClick(problem.id)}
+                      showStar={false}
+                      isStarred={problem.isStarred}
+                      onStarToggle={() => handleStarToggle(problem.id, problem.isStarred)}
+                      isLoading={starLoading[problem.id]}
+                    />
+                  </div>
                 ))}
               </div>
             )}

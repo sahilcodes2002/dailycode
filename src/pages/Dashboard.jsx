@@ -48,11 +48,25 @@ export function Dashboard() {
 
   const markAsSolved = async (problemId) => {
     try {
-      // We'll implement this when we build the problem detail page
-      toast.success('Marked as solved!');
-      // Refresh the list
-      fetchTodayProblems();
+      // Optimistically update UI
+      setProblems(prev => prev.map(p => 
+        p.problem.id === problemId 
+          ? { ...p, solved: !p.solved } 
+          : p
+      ));
+
+      const currentProblem = problems.find(p => p.problem.id === problemId);
+      const newSolvedState = !currentProblem?.solved;
+
+      await apiCalls.toggleProblemSolved(problemId, newSolvedState);
+      toast.success(newSolvedState ? 'Marked as solved!' : 'Marked as unsolved!');
     } catch (error) {
+      // Revert on error
+      setProblems(prev => prev.map(p => 
+        p.problem.id === problemId 
+          ? { ...p, solved: !p.solved } 
+          : p
+      ));
       toast.error('Failed to update');
     }
   };

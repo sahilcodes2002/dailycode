@@ -1,10 +1,10 @@
 // pages/ProblemDetail.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiCalls } from '../utils/api';
 import Header from '../components/Header';
 import { toast } from 'react-hot-toast';
-import { Star, Save, ExternalLink, Calendar, Clock, Flag, Code } from 'lucide-react';
+import { Star, ExternalLink, Calendar, Clock, Flag, Code } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 
 export function ProblemDetail() {
@@ -14,10 +14,15 @@ export function ProblemDetail() {
   const [userProgress, setUserProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '', 'saving', 'saved'
   
   // Monaco Editor settings
   const [editorLanguage, setEditorLanguage] = useState('cpp');
   const [editorTheme, setEditorTheme] = useState('vs-dark');
+  
+  // Refs for debouncing
+  const debounceTimerRef = useRef(null);
+  const autoSaveTimeoutRef = useRef(null);
   const [formData, setFormData] = useState({
     solution: '',
     Pattern: '',
@@ -33,6 +38,18 @@ export function ProblemDetail() {
   useEffect(() => {
     fetchProblemDetails();
   }, [id]);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const fetchProblemDetails = async () => {
     try {
@@ -53,7 +70,7 @@ export function ProblemDetail() {
             starred: response.data.user_progress.starred || false,
             importance: response.data.user_progress.importance || 0,
             notes: response.data.user_progress.notes || '',
-            solved: response.data.user_progress.no_solved > 0 // Simplified check
+            solved: (response.data.user_progress.no_solved || 0) > 0
           });
         } else {
           // New entry - reset to defaults
@@ -85,59 +102,115 @@ export function ProblemDetail() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: type === 'checkbox' ? checked : value
-    }));
+    };
+    setFormData(newFormData);
+    
+    // Debounced save for text fields (notes, Pattern)
+    if (name === 'notes' || name === 'Pattern') {
+      debouncedAutoSave(newFormData);
+    }
   };
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: value === '' ? 0 : parseInt(value, 10)
-    }));
+    };
+    setFormData(newFormData);
+    
+    // Immediate save for number fields
+    immediateAutoSave(newFormData);
   };
 
-  const handleSave = async () => {
+  // Auto-save function
+  const autoSave = useCallback(async (data) => {
     try {
-      setSaving(true);
+      setAutoSaveStatus('saving');
       
       const updateData = {
-        solution: formData.solution,
-        Pattern: formData.Pattern,
-        mydifficulty: formData.mydifficulty,
-        best_time: formData.best_time,
-        importance: formData.importance,
-        notes: formData.notes,
-        starred: formData.starred,
-        // If solved is being toggled on, increment no_solved
-        increment_solve: !userProgress?.solved && formData.solved,
-        solved: formData.solved
+        solution: data.solution,
+        Pattern: data.Pattern,
+        mydifficulty: data.mydifficulty,
+        best_time: data.best_time,
+        importance: data.importance,
+        notes: data.notes,
+        starred: data.starred,
+        solved: data.solved
       };
 
       const response = await apiCalls.updateProblem(id, updateData);
       
       if (response.data.success) {
-        toast.success('Progress saved!');
-        fetchProblemDetails(); // Refresh data
+        setAutoSaveStatus('saved');
+        // Clear the 'saved' status after 2 seconds
+        if (autoSaveTimeoutRef.current) {
+          clearTimeout(autoSaveTimeoutRef.current);
+        }
+        autoSaveTimeoutRef.current = setTimeout(() => {
+          setAutoSaveStatus('');
+        }, 2000);
       } else {
-        toast.error('Failed to save');
+        setAutoSaveStatus('');
+        console.error('Auto-save failed');
       }
     } catch (error) {
-      console.error('Error saving progress:', error);
-      toast.error('Error saving progress');
-    } finally {
-      setSaving(false);
+      console.error('Error auto-saving:', error);
+      setAutoSaveStatus('');
     }
-  };
+  }, [id]);
+
+  // Debounced auto-save for text fields (solution, notes, pattern)
+  const debouncedAutoSave = useCallback((data) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      autoSave(data);
+    }, 1000); // 1 second debounce
+  }, [autoSave]);
+
+  // Immediate auto-save for non-text fields
+  const immediateAutoSave = useCallback((data) => {
+    autoSave(data);
+  }, [autoSave]);
 
   const incrementSolveCount = () => {
+    const newFormData = {
+      ...formData,
+      no_solved: formData.no_solved + 1,
+      solved: true
+    };
+    setFormData(newFormData);
+    immediateAutoSave(newFormData);
+  };
+
+  const toggleSolved = async () => {
+    const isCurrentlySolved = formData.no_solved > 0;
+    const newNoSolved = isCurrentlySolved ? 0 : 1;
+    
+    // Optimistically update UI
     setFormData(prev => ({
       ...prev,
-      no_solved: prev.no_solved + 1,
-      solved: true
+      no_solved: newNoSolved,
+      solved: newNoSolved > 0
     }));
+
+    try {
+      await apiCalls.toggleProblemSolved(id, newNoSolved > 0);
+      toast.success(newNoSolved > 0 ? 'Marked as solved!' : 'Marked as unsolved! (Times solved reset to 0)');
+    } catch (error) {
+      // Revert on error
+      setFormData(prev => ({
+        ...prev,
+        no_solved: isCurrentlySolved ? prev.no_solved : 0,
+        solved: isCurrentlySolved
+      }));
+      toast.error('Failed to update');
+    }
   };
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -390,7 +463,11 @@ export function ProblemDetail() {
                 {[1, 2, 3, 4, 5].map(star => (
                   <button
                     key={star}
-                    onClick={() => setFormData(prev => ({ ...prev, importance: star }))}
+                    onClick={() => {
+                      const newFormData = { ...formData, importance: star };
+                      setFormData(newFormData);
+                      immediateAutoSave(newFormData);
+                    }}
                     className="text-2xl"
                   >
                     {star <= formData.importance ? '★' : '☆'}
@@ -449,7 +526,11 @@ export function ProblemDetail() {
                   language={editorLanguage}
                   value={formData.solution}
                   theme={editorTheme}
-                  onChange={(value) => setFormData(prev => ({ ...prev, solution: value || '' }))}
+                  onChange={(value) => {
+                    const newFormData = { ...formData, solution: value || '' };
+                    setFormData(newFormData);
+                    debouncedAutoSave(newFormData);
+                  }}
                   onMount={handleEditorDidMount}
                   options={{
                     minimap: { enabled: false },
@@ -514,7 +595,11 @@ export function ProblemDetail() {
                       <button
                         key={diff}
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, mydifficulty: diff }))}
+                        onClick={() => {
+                          const newFormData = { ...formData, mydifficulty: diff };
+                          setFormData(newFormData);
+                          immediateAutoSave(newFormData);
+                        }}
                         className={`px-4 py-2 rounded-lg font-medium ${
                           formData.mydifficulty === diff 
                             ? 'bg-blue-600 text-white' 
@@ -566,20 +651,18 @@ export function ProblemDetail() {
                   </div>
                 </div>
 
-                {/* Solved Checkbox */}
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="solved"
-                    name="solved"
-                    checked={formData.solved}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 text-blue-600 rounded"
-                  />
-                  <label htmlFor="solved" className="ml-2 text-sm text-gray-700">
-                    Mark as solved
-                  </label>
-                </div>
+                {/* Solved Toggle Button */}
+                <button
+                  type="button"
+                  onClick={toggleSolved}
+                  className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
+                    formData.solved
+                      ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                >
+                  {formData.solved ? '✓ Mark as Unsolved' : 'Mark as Solved'}
+                </button>
 
                 {/* Starred Checkbox - remove this or make it read-only */}
                 <div className="flex items-center">
@@ -598,26 +681,28 @@ export function ProblemDetail() {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Auto-save Status */}
             <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex gap-4">
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {saving ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {autoSaveStatus === 'saving' && (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5" />
-                      Save Progress
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <span className="text-sm text-gray-600">Saving...</span>
                     </>
                   )}
-                </button>
+                  {autoSaveStatus === 'saved' && (
+                    <>
+                      <div className="h-4 w-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                      <span className="text-sm text-green-600">Saved</span>
+                    </>
+                  )}
+                  {autoSaveStatus === '' && (
+                    <span className="text-sm text-gray-400">All changes auto-saved</span>
+                  )}
+                </div>
                 <button
                   onClick={() => navigate('/discover')}
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"

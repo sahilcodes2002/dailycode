@@ -250,15 +250,19 @@ export default function ProblemCard({
             Solve
           </a>
           
-          {!solved && onMarkSolved && (
+          {onMarkSolved && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onMarkSolved();
               }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className={`px-4 py-2 text-white rounded-lg ${
+                solved 
+                  ? 'bg-gray-600 hover:bg-gray-700' 
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
             >
-              Mark Solved
+              {solved ? 'Mark Unsolved' : 'Mark Solved'}
             </button>
           )}
         </div>

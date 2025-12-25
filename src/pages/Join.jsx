@@ -36,7 +36,7 @@ export function Join() {
                       <div className="flex justify-between">
                           <div class="logo-wrapper">
                             {/* <div class="logo-image"><img className="rounded-md" src={ss} alt="Design" /></div> */}
-                            <div class="logo-text"> Auto Note</div>
+                            <div class="logo-text"> DailyCode</div>
                             </div>
                           <Link to="/signin" className="text-white px-3 py-1 bg-[rgb(47,141,113)]  hover:bg-[rgb(18,107,70)] rounded-xl mt-3 mb-auto text-sm">
                               Log in
@@ -56,19 +56,19 @@ export function Join() {
                       style={{ fontWeight: 650 }}
                       className=" text-center font-sans  leading-tight text-[30px] smd:text-[39px] text-black text-opacity-80"
                     >
-                      Create your account and start using Auto Note
+                      Create your account and start using DailyCode
                     </p>
                     <p
                       style={{ fontWeight: 650 }}
                       className="mt-3 text-center font-sans  leading-tight text-[15px]  text-black text-opacity-80"
                     >
-                      Already have a Auto Note Account?{" "}
+                      Already have a DailyCode Account?{" "}
                       <Link
                         to="/signin"
                         className="font-normal text-[rgb(47,141,113)] underline hover:no-underline block sm:inline"
                       >
                         {" "}
-                        Log in to Auto Note
+                        Log in to DailyCode
                       </Link>
                     </p>
                   </div>

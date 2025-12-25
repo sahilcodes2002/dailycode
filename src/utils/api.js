@@ -41,6 +41,7 @@ export const apiCalls = {
   updateProblem: (problemId, data) => api.patch(`/problems/${problemId}`, data),
   postProblem: (data) => api.post('/postproblems', data),
   deleteProblem: (problemId) => api.delete(`/problems/${problemId}`),
+  toggleProblemSolved: (problemId, solved) => api.patch(`/problems/${problemId}/solved`, { solved }),
   
   // ==================== MY PROBLEMS ====================
   getStarredProblems: () => api.get('/my/problems/starred'),

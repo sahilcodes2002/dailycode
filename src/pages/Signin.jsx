@@ -57,7 +57,7 @@ export function Signin() {
           <div className="p-8">
             <div className="flex justify-between items-start mb-8">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
-                AUTO NOTE
+                DailyCode
               </h1>
               <Link 
                 to={"/"} 
@@ -85,7 +85,7 @@ export function Signin() {
             >
               <Heading title={"Welcome Back"} />
               <SubHeading 
-                SubHeading={"Sign in to continue viewing your notes"} 
+                SubHeading={"Sign in to continue your coding journey"} 
                 className="text-slate-400 mt-2"
               />
 
@@ -115,7 +115,7 @@ export function Signin() {
                 </button>
 
                 <BottomWarning
-                  warning={"New to AutoNote? "}
+                  warning={"New to DailyCode? "}
                   buttonText={"Create Account"}
                   to={"/signup"}
                   className="text-slate-400 mt-4"

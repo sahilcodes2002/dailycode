@@ -8,6 +8,7 @@ import { Discover } from './pages/Discover';
 import { ProblemDetail } from './pages/ProblemDetail';
 import { PostProblem } from './pages/PostProblem';
 import { Profile } from './pages/Profile';
+import { Homepage } from './pages/Home';
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
       <Toaster position="top-right" />
       <HashRouter>
         <Routes>
-          <Route path='/' element={<Signin />} />
+          <Route path='/' element={<Homepage />} />
           <Route path='/signin' element={<Signin />} />
           <Route path='/signup' element={<Join />} />
           <Route path='/dashboard' element={<Dashboard />} />
