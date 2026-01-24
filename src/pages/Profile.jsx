@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiCalls } from '../utils/api';
 import Header from '../components/Header';
-import TagSelector from '../components/TagSelector';
+import TagGroupSelector from '../components/TagGroupSelector';
 import { toast } from 'react-hot-toast';
 import { User, Mail, Settings, Bell, Tag, Save, Check, X, Trash2, BarChart3 } from 'lucide-react';
 import StatsOverview from '../components/StatsOverview';
@@ -271,12 +271,10 @@ export function Profile() {
     }
   };
 
-  const handleTagSelect = (tagId) => {
+  const handleTagsChange = (newTags) => {
     setMailPreferences(prev => ({
       ...prev,
-      selectedTags: prev.selectedTags.includes(tagId)
-        ? prev.selectedTags.filter(id => id !== tagId)
-        : [...prev.selectedTags, tagId]
+      selectedTags: newTags
     }));
   };
 
@@ -701,12 +699,12 @@ export function Profile() {
                         Preferred Topics/Tags
                       </label>
                       <p className="text-sm text-gray-600 mb-4">
-                        Select the topics you want to focus on. Leave empty for all topics.
+                        Select tag groups to add all related tags, or pick individual tags. Leave empty for all topics.
                       </p>
-                      <TagSelector
+                      <TagGroupSelector
                         allTags={allTags}
                         selectedTags={mailPreferences.selectedTags}
-                        onTagSelect={handleTagSelect}
+                        onTagsChange={handleTagsChange}
                       />
                     </div>
 
