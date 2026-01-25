@@ -34,7 +34,8 @@ export function Profile() {
   const [mailPreferences, setMailPreferences] = useState({
     alwayson: false,
     problemsToMail: 3,
-    selectedTags: []
+    selectedTags: [],
+    preferredDifficulty: '' // '' means any difficulty, or 'A', 'B', 'C', 'D', 'E', 'F'
   });
 
   // Stats data
@@ -74,7 +75,8 @@ export function Profile() {
           ...prev,
           alwayson: profileData?.dailymail || false,
           problemsToMail: profileData?.problemsToMail || 3,
-          selectedTags: profileData?.tags?.map(t => t.id) || []
+          selectedTags: profileData?.tags?.map(t => t.id) || [],
+          preferredDifficulty: profileData?.preferredDifficulty || ''
         }));
       }
     } catch (error) {
@@ -255,7 +257,8 @@ export function Profile() {
       
       const response = await apiCalls.updateMailPreferences({
         problemsToMail: mailPreferences.problemsToMail,
-        tagIds: mailPreferences.selectedTags
+        tagIds: mailPreferences.selectedTags,
+        preferredDifficulty: mailPreferences.preferredDifficulty || null
       });
       
       if (response.data.success) {
@@ -690,6 +693,39 @@ export function Profile() {
                       <p className="text-xs text-gray-500 mt-2">
                         Recommended: 3-5 problems per day
                       </p>
+                    </div>
+
+                    {/* Difficulty Selection */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Preferred Difficulty
+                      </label>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Select a difficulty level for problems, or leave as "Any" for mixed difficulties.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { value: '', label: 'Any', color: 'bg-gray-100 text-gray-700 border-gray-300' },
+                          { value: 'A', label: 'A (Easy)', color: 'bg-green-100 text-green-700 border-green-300' },
+                          { value: 'B', label: 'B', color: 'bg-lime-100 text-lime-700 border-lime-300' },
+                          { value: 'C', label: 'C', color: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
+                          { value: 'D', label: 'D', color: 'bg-orange-100 text-orange-700 border-orange-300' },
+                          { value: 'E', label: 'E', color: 'bg-red-100 text-red-700 border-red-300' },
+                          { value: 'F', label: 'F (Hard)', color: 'bg-purple-100 text-purple-700 border-purple-300' },
+                        ].map((diff) => (
+                          <button
+                            key={diff.value}
+                            onClick={() => setMailPreferences(prev => ({ ...prev, preferredDifficulty: diff.value }))}
+                            className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
+                              mailPreferences.preferredDifficulty === diff.value
+                                ? `${diff.color} border-current ring-2 ring-offset-1 ring-current`
+                                : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            {diff.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Tag Selection */}
